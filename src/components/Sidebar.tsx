@@ -8,9 +8,11 @@ import {
   Sparkles, 
   Zap,
   Clock,
-  DollarSign
+  DollarSign,
+  Compass
 } from 'lucide-react';
 import { useLedger } from '../context/LedgerContext';
+import { useLanguage } from '../context/LanguageContext';
 
 interface SidebarProps {
   activeTab: NavigationTab;
@@ -34,41 +36,48 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onCloseMobile,
 }) => {
   const { activities, summary } = useLedger();
+  const { language, t } = useLanguage();
 
   const actionCount = activities.filter((a) => a.type === 'action' && !a.completed).length;
 
   const navItems: NavItem[] = [
     {
       id: 'dashboard',
-      label: 'Monthly Dashboard',
-      shortDesc: 'Remaining resources at a glance',
+      label: t('nav.dashboard', 'Pano'),
+      shortDesc: t('nav.dashboard_desc', 'Kaynak dengesi ve özet'),
       icon: LayoutDashboard,
     },
     {
       id: 'setup',
-      label: 'Monthly Setup',
-      shortDesc: 'Starting time, budget & will limits',
+      label: t('nav.setup', 'Aylık Limitler'),
+      shortDesc: t('nav.setup_desc', 'İrade, zaman ve bütçe tavanı'),
       icon: Sliders,
     },
     {
       id: 'log',
-      label: 'Daily Activity Log',
-      shortDesc: 'Record capabilities, needs & actions',
+      label: t('nav.log', 'Aktivite Günlüğü'),
+      shortDesc: t('nav.log_desc', 'Kapasite, ihtiyaç ve eylemler'),
       icon: BookOpen,
       badge: activities.length > 0 ? activities.length : undefined,
     },
     {
       id: 'categories',
-      label: 'Category Manager',
-      shortDesc: 'Customize life areas & tags',
+      label: t('nav.categories', 'Kategoriler'),
+      shortDesc: t('nav.categories_desc', 'Etiketler ve renkler'),
       icon: FolderKanban,
     },
     {
       id: 'priorities',
-      label: 'Action Priorities',
-      shortDesc: 'AI recommendations on what next',
+      label: t('nav.priorities', 'AI Öncelikler'),
+      shortDesc: t('nav.priorities_desc', 'Yapay zeka eylem sıralaması'),
       icon: Sparkles,
       badge: actionCount > 0 ? actionCount : undefined,
+    },
+    {
+      id: 'manual',
+      label: t('nav.manual', 'Kılavuz & Şemalar'),
+      shortDesc: t('nav.manual_desc', 'Çizimler, akışlar ve rehber'),
+      icon: Compass,
     },
   ];
 
@@ -157,10 +166,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <div className="flex items-center justify-between text-xs">
             <span className="font-semibold text-[#2D3748] flex items-center gap-1.5">
               <Zap className="w-3.5 h-3.5 text-[#4F6D7A]" />
-              Will Vitality
+              {language === 'tr' ? 'İrade Canlılığı' : 'Will Vitality'}
             </span>
             <span className="font-bold text-[#1A202C] text-xs">
-              {summary.remainingWill} <span className="font-normal text-[#A0AEC0] text-[10px]">pts</span>
+              {summary.remainingWill} <span className="font-normal text-[#A0AEC0] text-[10px]">{language === 'tr' ? 'puan' : 'pts'}</span>
             </span>
           </div>
 
@@ -184,7 +193,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </div>
 
           <p className="text-[11px] text-[#718096] leading-snug">
-            {summary.remainingWill > 50
+            {language === 'tr'
+              ? summary.remainingWill > 50
+                ? 'Hedefleriniz için zihinsel enerjiniz gayet yüksek.'
+                : summary.remainingWill > 20
+                ? 'Orta seviye enerji kaldı. Bir kapasite molası planlayın.'
+                : 'Enerji kritik seviyede! Dinlenmeye ve uykuya öncelik verin.'
+              : summary.remainingWill > 50
               ? 'Generous mental bandwidth available for milestones.'
               : summary.remainingWill > 20
               ? 'Moderate energy remaining. Consider a replenishing habit.'

@@ -80,4 +80,5 @@ export type NavigationTab =
   | 'setup'
   | 'log'
   | 'categories'
-  | 'priorities';
+  | 'priorities'
+  | 'manual';

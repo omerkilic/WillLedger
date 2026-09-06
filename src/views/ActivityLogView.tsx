@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useLedger } from '../context/LedgerContext';
+import { useLanguage } from '../context/LanguageContext';
 import { Activity, ActivityType } from '../types';
 import { ResourceStatusBar } from '../components/ResourceStatusBar';
 import { EditActivityModal } from '../components/EditActivityModal';
@@ -25,6 +26,8 @@ import {
 
 export const ActivityLogView: React.FC = () => {
   const { activities, categories, limits, addActivity, deleteActivity, updateActivity, selectedMonth } = useLedger();
+  const { language, t } = useLanguage();
+  const isTr = language === 'tr';
 
   // Quick Add Form State
   const [title, setTitle] = useState('');
@@ -55,11 +58,11 @@ export const ActivityLogView: React.FC = () => {
     setValidationError(null);
 
     if (!title.trim()) {
-      setValidationError('Please enter an activity title.');
+      setValidationError(isTr ? 'Lütfen bir aktivite adı girin.' : 'Please enter an activity title.');
       return;
     }
 
-    const t = Math.max(0, Number(timeImpact) || 0);
+    const tImpact = Math.max(0, Number(timeImpact) || 0);
     const b = Math.max(0, Number(budgetImpact) || 0);
     const w = Math.max(0, Number(willImpact) || 0);
 
@@ -71,7 +74,7 @@ export const ActivityLogView: React.FC = () => {
         date: date || `${selectedMonth}-01`,
         month: selectedMonth,
         categoryId: categoryId || categories[0]?.id || 'cat-1',
-        timeImpact: t,
+        timeImpact: tImpact,
         budgetImpact: b,
         willImpact: w,
         notes: notes.trim(),
@@ -91,7 +94,7 @@ export const ActivityLogView: React.FC = () => {
         setWillImpact(15);
       }
     } catch (err: any) {
-      setValidationError(err?.message || 'Failed to save activity');
+      setValidationError(err?.message || (isTr ? 'Aktivite kaydedilemedi' : 'Failed to save activity'));
     } finally {
       setIsSubmitting(false);
     }
@@ -136,14 +139,24 @@ export const ActivityLogView: React.FC = () => {
       <div className="space-y-6">
         <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h2 className="text-3xl font-light text-[#1A202C] mb-2">Daily Activity Log</h2>
+            <h2 className="text-3xl font-light text-[#1A202C] mb-2">
+              {isTr ? 'Günlük Aktivite Defteri' : 'Daily Activity Log'}
+            </h2>
             <p className="text-[#718096] max-w-2xl leading-relaxed">
-              Log daily items across three essential dimensions: <strong>capabilities</strong> (restorative habits), <strong>needs</strong> (maintenance), and <strong>actions</strong> (intentional projects).
+              {isTr ? (
+                <>
+                  Günlük kayıtlarınızı 3 temel boyutta tutun: <strong>kapasite</strong> (şarj eden alışkanlıklar), <strong>ihtiyaç</strong> (bakım/rutin) ve <strong>eylem</strong> (odaklanılmış projeler).
+                </>
+              ) : (
+                <>
+                  Log daily items across three essential dimensions: <strong>capabilities</strong> (restorative habits), <strong>needs</strong> (maintenance), and <strong>actions</strong> (intentional projects).
+                </>
+              )}
             </p>
           </div>
           <div className="shrink-0">
             <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#F0F4F2] text-[#4F6D7A] text-xs font-semibold border border-[#EDEAE5]">
-              {activities.length} Entries Logged
+              {isTr ? `${activities.length} Aktivite Kayıtlı` : `${activities.length} Entries Logged`}
             </span>
           </div>
         </header>
@@ -156,10 +169,16 @@ export const ActivityLogView: React.FC = () => {
       <div className="bg-white rounded-3xl p-6 sm:p-8 border border-[#EDEAE5] shadow-xs space-y-6">
         <div className="flex items-center justify-between border-b border-gray-100 pb-4">
           <div>
-            <h3 className="text-lg font-medium text-[#1A202C]">Quick-Log Activity</h3>
-            <p className="text-xs text-[#718096]">Classify and estimate resource impact.</p>
+            <h3 className="text-lg font-medium text-[#1A202C]">
+              {isTr ? 'Hızlı Aktivite Ekle' : 'Quick-Log Activity'}
+            </h3>
+            <p className="text-xs text-[#718096]">
+              {isTr ? 'Sınıflandırın ve kaynak etkilerini tahmin edin.' : 'Classify and estimate resource impact.'}
+            </p>
           </div>
-          <span className="text-xs text-[#A0AEC0]">Real-time balance deduction</span>
+          <span className="text-xs text-[#A0AEC0]">
+            {isTr ? 'Canlı bakiye düşümü' : 'Real-time balance deduction'}
+          </span>
         </div>
 
         {validationError && (
@@ -176,7 +195,7 @@ export const ActivityLogView: React.FC = () => {
           {/* Classification Tabs: Capability / Need / Action */}
           <div className="space-y-2">
             <label className="block text-xs font-bold uppercase tracking-widest text-[#A0AEC0]">
-              1. Choose Activity Classification
+              {isTr ? '1. Aktivite Sınıflandırmasını Seçin' : '1. Choose Activity Classification'}
             </label>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               {/* Capability */}
@@ -195,14 +214,16 @@ export const ActivityLogView: React.FC = () => {
               >
                 <div className="flex items-center justify-between mb-1">
                   <span className="text-xs font-bold flex items-center gap-1.5 text-[#4F6D7A]">
-                    <Sparkles className="w-3.5 h-3.5" /> Capability
+                    <Sparkles className="w-3.5 h-3.5" /> {isTr ? 'Kapasite' : 'Capability'}
                   </span>
                   <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#4F6D7A]/15 text-[#4F6D7A]">
-                    +Will Replenish
+                    {isTr ? '+İrade Şarjı' : '+Will Replenish'}
                   </span>
                 </div>
                 <p className="text-[11px] text-[#718096] leading-tight">
-                  Restorative habits, walks, meditation, or learning that restores mental stamina.
+                  {isTr 
+                    ? 'Dinlenme, spor, yürüyüş, meditasyon veya zihinsel enerjiyi geri kazandıran hobiler.'
+                    : 'Restorative habits, walks, meditation, or learning that restores mental stamina.'}
                 </p>
               </button>
 
@@ -222,14 +243,16 @@ export const ActivityLogView: React.FC = () => {
               >
                 <div className="flex items-center justify-between mb-1">
                   <span className="text-xs font-bold flex items-center gap-1.5 text-blue-700">
-                    <Heart className="w-3.5 h-3.5" /> Need
+                    <Heart className="w-3.5 h-3.5" /> {isTr ? 'İhtiyaç' : 'Need'}
                   </span>
                   <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-800">
-                    Maintenance
+                    {isTr ? 'Rutin / Bakım' : 'Maintenance'}
                   </span>
                 </div>
                 <p className="text-[11px] text-[#718096] leading-tight">
-                  Essential chores, groceries, healthcare bills, and administrative upkeep.
+                  {isTr
+                    ? 'Zorunlu ev işleri, market alışverişi, sağlık faturaları ve idari işler.'
+                    : 'Essential chores, groceries, healthcare bills, and administrative upkeep.'}
                 </p>
               </button>
 
@@ -249,14 +272,16 @@ export const ActivityLogView: React.FC = () => {
               >
                 <div className="flex items-center justify-between mb-1">
                   <span className="text-xs font-bold flex items-center gap-1.5 text-amber-700">
-                    <Zap className="w-3.5 h-3.5" /> Action
+                    <Zap className="w-3.5 h-3.5" /> {isTr ? 'Eylem (Hedef)' : 'Action (Goal)'}
                   </span>
                   <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800">
-                    Goal & Task
+                    {isTr ? 'AI Öncelikler' : 'Goal & Task'}
                   </span>
                 </div>
                 <p className="text-[11px] text-[#718096] leading-tight">
-                  Intentional creative projects, milestones, deep work, and social engagements.
+                  {isTr
+                    ? 'Kariyer projeleri, derin odaklanma gerektiren işler, öğrenme ve hedefler.'
+                    : 'Intentional creative projects, milestones, deep work, and social engagements.'}
                 </p>
               </button>
             </div>
@@ -266,7 +291,7 @@ export const ActivityLogView: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
             <div className="md:col-span-6 space-y-1.5">
               <label htmlFor="input-activity-title" className="block text-xs font-bold uppercase tracking-widest text-[#A0AEC0]">
-                Activity Title
+                {isTr ? 'Aktivite Başlığı' : 'Activity Title'}
               </label>
               <input
                 id="input-activity-title"
@@ -275,11 +300,17 @@ export const ActivityLogView: React.FC = () => {
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder={
-                  type === 'capability'
-                    ? 'e.g. 20-min Morning Breathwork & Tea'
-                    : type === 'need'
-                    ? 'e.g. Grocery Shopping & Meal Prep'
-                    : 'e.g. Write Chapter 3 of Project Proposal'
+                  isTr
+                    ? (type === 'capability'
+                        ? 'Örn: 20 dk Sabah Nefes Egzersizi & Çay'
+                        : type === 'need'
+                        ? 'Örn: Haftalık Market Alışverişi'
+                        : 'Örn: Proje Raporunun 3. Bölümünü Yaz')
+                    : (type === 'capability'
+                        ? 'e.g. 20-min Morning Breathwork & Tea'
+                        : type === 'need'
+                        ? 'e.g. Grocery Shopping & Meal Prep'
+                        : 'e.g. Write Chapter 3 of Project Proposal')
                 }
                 className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#4F6D7A] outline-none text-sm text-[#1A202C] transition-all placeholder:text-gray-400"
               />
@@ -287,7 +318,7 @@ export const ActivityLogView: React.FC = () => {
 
             <div className="md:col-span-3 space-y-1.5">
               <label htmlFor="select-activity-category" className="block text-xs font-bold uppercase tracking-widest text-[#A0AEC0]">
-                Category
+                {isTr ? 'Kategori' : 'Category'}
               </label>
               <select
                 id="select-activity-category"
@@ -305,7 +336,7 @@ export const ActivityLogView: React.FC = () => {
 
             <div className="md:col-span-3 space-y-1.5">
               <label htmlFor="input-activity-date" className="block text-xs font-bold uppercase tracking-widest text-[#A0AEC0]">
-                Date
+                {isTr ? 'Tarih' : 'Date'}
               </label>
               <input
                 id="input-activity-date"
@@ -323,10 +354,12 @@ export const ActivityLogView: React.FC = () => {
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold uppercase tracking-widest text-[#4F6D7A] flex items-center gap-1.5">
                 <SlidersHorizontal className="w-3.5 h-3.5 text-[#4F6D7A]" />
-                2. Resource Impact Estimation
+                {isTr ? '2. Kaynak Etkisi Tahmini' : '2. Resource Impact Estimation'}
               </span>
               <span className="text-[11px] text-[#718096]">
-                {type === 'capability' ? 'Replenishes Will / Mental Stamina' : 'Draws from monthly pool'}
+                {type === 'capability' 
+                  ? (isTr ? 'İradeyi ve Zihinsel Canlılığı Artırır' : 'Replenishes Will / Mental Stamina') 
+                  : (isTr ? 'Aylık havuzdan düşer' : 'Draws from monthly pool')}
               </span>
             </div>
 
@@ -335,7 +368,7 @@ export const ActivityLogView: React.FC = () => {
               <div className="space-y-2 bg-white p-4 rounded-xl border border-[#EDEAE5] shadow-xs">
                 <div className="flex justify-between items-center text-xs">
                   <span className="font-semibold text-[#2D3748] flex items-center gap-1">
-                    <Clock className="w-3 h-3 text-blue-500" /> Time (Hours)
+                    <Clock className="w-3 h-3 text-blue-500" /> {isTr ? 'Zaman (Saat)' : 'Time (Hours)'}
                   </span>
                   <span className="font-bold text-blue-700">{timeImpact}h</span>
                 </div>
@@ -360,7 +393,7 @@ export const ActivityLogView: React.FC = () => {
               <div className="space-y-2 bg-white p-4 rounded-xl border border-[#EDEAE5] shadow-xs">
                 <div className="flex justify-between items-center text-xs">
                   <span className="font-semibold text-[#2D3748] flex items-center gap-1">
-                    <DollarSign className="w-3 h-3 text-[#4F6D7A]" /> Budget Cost
+                    <DollarSign className="w-3 h-3 text-[#4F6D7A]" /> {isTr ? 'Mali Maliyet' : 'Budget Cost'}
                   </span>
                   <span className="font-bold text-[#4F6D7A]">
                     {limits.currencySymbol}{budgetImpact}
@@ -388,14 +421,16 @@ export const ActivityLogView: React.FC = () => {
                 <div className="flex justify-between items-center text-xs">
                   <span className="font-semibold text-[#2D3748] flex items-center gap-1">
                     <Zap className="w-3 h-3 text-amber-500" />
-                    {type === 'capability' ? 'Will Replenish' : 'Will Drain'}
+                    {type === 'capability' 
+                      ? (isTr ? 'İrade Doldurma' : 'Will Replenish') 
+                      : (isTr ? 'İrade Harcama' : 'Will Drain')}
                   </span>
                   <span
                     className={`font-bold ${
                       type === 'capability' ? 'text-[#4F6D7A]' : 'text-amber-700'
                     }`}
                   >
-                    {type === 'capability' ? `+${willImpact}` : `-${willImpact}`} pts
+                    {type === 'capability' ? `+${willImpact}` : `-${willImpact}`} {isTr ? 'puan' : 'pts'}
                   </span>
                 </div>
                 <input
@@ -424,7 +459,7 @@ export const ActivityLogView: React.FC = () => {
               type="text"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              placeholder="Optional notes, context or milestone outcome..."
+              placeholder={isTr ? 'İsteğe bağlı notlar, hedefler veya detay...' : 'Optional notes, context or milestone outcome...'}
               className="flex-1 px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#4F6D7A] outline-none text-xs text-[#1A202C] placeholder:text-gray-400"
             />
 
@@ -435,7 +470,11 @@ export const ActivityLogView: React.FC = () => {
               className="px-6 py-3 rounded-2xl bg-[#4F6D7A] hover:bg-[#3D545E] text-white font-medium text-xs transition-colors shadow-lg shadow-[#4F6D7A]/15 flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer shrink-0"
             >
               <Plus className="w-4 h-4" />
-              <span>{isSubmitting ? 'Logging...' : 'Save to Ledger'}</span>
+              <span>
+                {isSubmitting 
+                  ? (isTr ? 'Kaydediliyor...' : 'Logging...') 
+                  : (isTr ? 'Deftere Kaydet' : 'Save to Ledger')}
+              </span>
             </button>
           </div>
         </form>
@@ -446,9 +485,13 @@ export const ActivityLogView: React.FC = () => {
         {/* List Header & Filters */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-gray-100 pb-4">
           <div>
-            <h3 className="text-base font-semibold text-[#1A202C]">Logged Activities</h3>
+            <h3 className="text-base font-semibold text-[#1A202C]">
+              {isTr ? 'Kayıtlı Aktiviteler' : 'Logged Activities'}
+            </h3>
             <p className="text-xs text-[#718096]">
-              Chronological log of your recorded capabilities, needs, and actions.
+              {isTr 
+                ? 'Kaydettiğiniz kapasite, ihtiyaç ve eylemlerin kronolojik akışı.'
+                : 'Chronological log of your recorded capabilities, needs, and actions.'}
             </p>
           </div>
 
@@ -461,7 +504,7 @@ export const ActivityLogView: React.FC = () => {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search activities..."
+                placeholder={isTr ? 'Aktivite ara...' : 'Search activities...'}
                 className="pl-8 pr-3 py-2 text-xs rounded-xl border border-gray-200 bg-[#F7F9F9] focus:bg-white focus:outline-hidden focus:ring-1 focus:ring-[#4F6D7A] w-36 sm:w-44"
               />
             </div>
@@ -472,10 +515,10 @@ export const ActivityLogView: React.FC = () => {
               onChange={(e) => setTypeFilter(e.target.value as any)}
               className="px-3 py-2 text-xs font-medium rounded-xl border border-gray-200 bg-[#F7F9F9] text-[#2D3748]"
             >
-              <option value="all">All Types</option>
-              <option value="capability">Capabilities</option>
-              <option value="need">Needs</option>
-              <option value="action">Actions</option>
+              <option value="all">{isTr ? 'Tüm Türler' : 'All Types'}</option>
+              <option value="capability">{isTr ? 'Kapasite' : 'Capabilities'}</option>
+              <option value="need">{isTr ? 'İhtiyaç' : 'Needs'}</option>
+              <option value="action">{isTr ? 'Eylemler' : 'Actions'}</option>
             </select>
 
             {/* Category Filter */}
@@ -484,7 +527,7 @@ export const ActivityLogView: React.FC = () => {
               onChange={(e) => setCategoryFilter(e.target.value)}
               className="px-3 py-2 text-xs font-medium rounded-xl border border-gray-200 bg-[#F7F9F9] text-[#2D3748]"
             >
-              <option value="all">All Categories</option>
+              <option value="all">{isTr ? 'Tüm Kategoriler' : 'All Categories'}</option>
               {categories.map((c) => (
                 <option key={c.id} value={c.id}>
                   {c.name}
@@ -504,10 +547,12 @@ export const ActivityLogView: React.FC = () => {
               <BookOpen className="w-6 h-6" />
             </div>
             <h4 className="text-sm font-medium text-[#1A202C]">
-              No Activities Logged Yet
+              {isTr ? 'Henüz Aktivite Eklenmedi' : 'No Activities Logged Yet'}
             </h4>
             <p className="text-xs text-[#718096] max-w-md mx-auto leading-relaxed">
-              Tracking your daily capabilities, needs, and actions keeps your monthly resource pool visible and balanced. Use the quick-log form above to record your first activity!
+              {isTr
+                ? 'Günlük kapasite, ihtiyaç ve eylemlerinizi takip ederek kaynak havuzunuzu dengede tutun. Yukarıdaki formu kullanarak ilk kaydınızı oluşturun!'
+                : 'Tracking your daily capabilities, needs, and actions keeps your monthly resource pool visible and balanced. Use the quick-log form above to record your first activity!'}
             </p>
           </div>
         ) : (
@@ -531,8 +576,8 @@ export const ActivityLogView: React.FC = () => {
                     <button
                       id={`btn-toggle-complete-${act.id}`}
                       onClick={() => handleToggleComplete(act)}
-                      className="mt-0.5 sm:mt-0 text-gray-400 hover:text-[#4F6D7A] transition-colors shrink-0"
-                      title={act.completed ? 'Mark pending' : 'Mark completed'}
+                      className="mt-0.5 sm:mt-0 text-gray-400 hover:text-[#4F6D7A] transition-colors shrink-0 cursor-pointer"
+                      title={act.completed ? (isTr ? 'Beklemede olarak işaretle' : 'Mark pending') : (isTr ? 'Tamamlandı olarak işaretle' : 'Mark completed')}
                     >
                       {act.completed ? (
                         <CheckCircle2 className="w-5 h-5 text-[#4F6D7A]" />
@@ -561,7 +606,11 @@ export const ActivityLogView: React.FC = () => {
                               : 'bg-amber-50 text-amber-800'
                           }`}
                         >
-                          {act.type}
+                          {act.type === 'capability' 
+                            ? (isTr ? 'Kapasite' : 'Capability') 
+                            : act.type === 'need' 
+                            ? (isTr ? 'İhtiyaç' : 'Need') 
+                            : (isTr ? 'Eylem' : 'Action')}
                         </span>
 
                         {/* Category tag */}
@@ -572,7 +621,7 @@ export const ActivityLogView: React.FC = () => {
                             className="w-1.5 h-1.5 rounded-full"
                             style={{ backgroundColor: cat?.color || '#4F6D7A' }}
                           />
-                          {cat?.name || 'Uncategorized'}
+                          {cat?.name || (isTr ? 'Genel' : 'Uncategorized')}
                         </span>
                       </div>
 
@@ -611,7 +660,7 @@ export const ActivityLogView: React.FC = () => {
                         }`}
                       >
                         <Zap className="w-3 h-3" />
-                        {act.type === 'capability' ? `+${act.willImpact}` : `-${act.willImpact}`}
+                        {act.type === 'capability' ? `+${act.willImpact}` : `-${act.willImpact}`} {isTr ? 'irade' : 'will'}
                       </span>
                     </div>
 
@@ -620,8 +669,8 @@ export const ActivityLogView: React.FC = () => {
                       <button
                         id={`btn-edit-activity-${act.id}`}
                         onClick={() => setEditingActivity(act)}
-                        className="p-1.5 rounded-lg text-gray-400 hover:text-gray-800 hover:bg-gray-100 transition-colors"
-                        title="Edit Activity"
+                        className="p-1.5 rounded-lg text-gray-400 hover:text-gray-800 hover:bg-gray-100 transition-colors cursor-pointer"
+                        title={isTr ? 'Aktiviteyi Düzenle' : 'Edit Activity'}
                         aria-label={`Edit ${act.title}`}
                       >
                         <Edit3 className="w-3.5 h-3.5" />
@@ -630,8 +679,8 @@ export const ActivityLogView: React.FC = () => {
                       <button
                         id={`btn-delete-activity-${act.id}`}
                         onClick={() => handleDelete(act.id)}
-                        className="p-1.5 rounded-lg text-gray-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
-                        title="Delete Activity"
+                        className="p-1.5 rounded-lg text-gray-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+                        title={isTr ? 'Aktiviteyi Sil' : 'Delete Activity'}
                         aria-label={`Delete ${act.title}`}
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -655,3 +704,4 @@ export const ActivityLogView: React.FC = () => {
     </div>
   );
 };
+

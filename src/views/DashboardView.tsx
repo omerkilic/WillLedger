@@ -1,5 +1,6 @@
 import React from 'react';
 import { useLedger } from '../context/LedgerContext';
+import { useLanguage } from '../context/LanguageContext';
 import { NavigationTab } from '../types';
 import { ResourceStatusBar } from '../components/ResourceStatusBar';
 import { 
@@ -15,7 +16,8 @@ import {
   CheckCircle2, 
   HeartHandshake,
   TrendingUp,
-  ShieldAlert
+  ShieldAlert,
+  Compass
 } from 'lucide-react';
 
 interface DashboardViewProps {
@@ -24,13 +26,17 @@ interface DashboardViewProps {
 
 export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
   const { summary, limits, activities, categories, selectedMonth } = useLedger();
+  const { language, t } = useLanguage();
 
-  // Format month name
+  // Format month name according to language
   const [yearStr, monthStr] = selectedMonth.split('-');
-  const monthName = new Date(parseInt(yearStr, 10), parseInt(monthStr, 10) - 1, 1).toLocaleDateString('en-US', {
-    month: 'long',
-    year: 'numeric',
-  });
+  const monthName = new Date(parseInt(yearStr, 10), parseInt(monthStr, 10) - 1, 1).toLocaleDateString(
+    language === 'tr' ? 'tr-TR' : 'en-US',
+    {
+      month: 'long',
+      year: 'numeric',
+    }
+  );
 
   const recentActivities = [...activities].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 5);
   const pendingActions = activities.filter((a) => a.type === 'action' && !a.completed);
@@ -44,33 +50,44 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
           <div className="space-y-2">
             <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[#4F6D7A]">
               <LayoutDashboard className="w-4 h-4" />
-              <span>Monthly Overview</span>
+              <span>{language === 'tr' ? 'Aylık Genel Bakış' : 'Monthly Overview'}</span>
             </div>
             <h1 className="text-3xl font-light tracking-tight text-[#1A202C]">
-              {monthName} Ledger at a Glance
+              {language === 'tr' ? `${monthName} Genel Durum` : `${monthName} Ledger at a Glance`}
             </h1>
             <p className="text-sm text-[#718096] max-w-2xl leading-relaxed">
-              Your personal energy, time, and budget balance. Regular tracking helps you stay mindful of limited mental bandwidth while building sustainable momentum.
+              {language === 'tr' 
+                ? 'Zihinsel enerjiniz, serbest zamanınız ve bütçe dengeniz. Düzenli takip, tükenmişliği önler ve sürdürülebilir bir tempo kazanmanızı sağlar.' 
+                : 'Your personal energy, time, and budget balance. Regular tracking helps you stay mindful of limited mental bandwidth while building sustainable momentum.'}
             </p>
           </div>
 
-          <div className="flex items-center gap-3 shrink-0">
+          <div className="flex flex-wrap items-center gap-2.5 shrink-0">
             <button
               id="btn-dash-quick-log"
               onClick={() => onNavigate('log')}
-              className="flex items-center gap-2 px-5 py-3 rounded-2xl bg-[#4F6D7A] hover:bg-[#3D545E] text-white font-medium text-xs transition-colors shadow-lg shadow-[#4F6D7A]/15 cursor-pointer"
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#4F6D7A] hover:bg-[#3D545E] text-white font-medium text-xs transition-colors shadow-xs cursor-pointer"
             >
               <Plus className="w-4 h-4" />
-              <span>Log Activity</span>
+              <span>{t('btn.log_activity')}</span>
+            </button>
+
+            <button
+              id="btn-dash-guide"
+              onClick={() => onNavigate('manual')}
+              className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 font-medium text-xs transition-colors border border-amber-200/80 cursor-pointer"
+            >
+              <Compass className="w-4 h-4 text-amber-700" />
+              <span>{t('btn.how_to_use')}</span>
             </button>
 
             <button
               id="btn-dash-adjust-setup"
               onClick={() => onNavigate('setup')}
-              className="flex items-center gap-2 px-4 py-3 rounded-2xl bg-[#F7F9F9] hover:bg-gray-100 text-[#4A5568] font-medium text-xs transition-colors border border-[#EDEAE5] cursor-pointer"
+              className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-[#F7F9F9] hover:bg-gray-100 text-[#4A5568] font-medium text-xs transition-colors border border-[#EDEAE5] cursor-pointer"
             >
               <Sliders className="w-4 h-4 text-[#718096]" />
-              <span>Adjust Limits</span>
+              <span>{t('btn.adjust_limits')}</span>
             </button>
           </div>
         </div>
@@ -80,9 +97,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
       <div className="space-y-3">
         <div className="flex items-center justify-between px-1">
           <h2 className="text-xs font-bold uppercase tracking-widest text-[#A0AEC0]">
-            Current Resource Pools
+            {language === 'tr' ? 'Canlı Kaynak Havuzları' : 'Current Resource Pools'}
           </h2>
-          <span className="text-xs text-[#A0AEC0]">Live dynamic calculations</span>
+          <span className="text-xs text-[#A0AEC0]">{language === 'tr' ? 'Anlık otomatik hesaplama' : 'Live dynamic calculations'}</span>
         </div>
         <ResourceStatusBar />
       </div>
@@ -100,11 +117,20 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
 
           <div className="space-y-2">
             <h3 className="text-xl font-medium text-[#1A202C]">
-              Welcome to Your Monthly Will Ledger
+              {language === 'tr' ? 'Will Ledger Takibinize Hoş Geldiniz' : 'Welcome to Your Monthly Will Ledger'}
             </h3>
             <p className="text-sm text-[#718096] leading-relaxed">
-              No activities have been recorded yet for <span className="font-semibold text-[#1A202C]">{monthName}</span>. 
-              Tracking your daily <strong>capabilities</strong> (restorative habits), <strong>needs</strong> (maintenance), and <strong>actions</strong> (goals) lets you clearly see how much mental energy and time you have remaining.
+              {language === 'tr' ? (
+                <>
+                  <span className="font-semibold text-[#1A202C]">{monthName}</span> için henüz bir aktivite kaydedilmedi. 
+                  Günlük <strong>kapasite</strong> (şarj eden alışkanlıklar), <strong>ihtiyaç</strong> (zorunlu işler) ve <strong>eylem</strong> (hedefler) girişleri yaparak zihinsel enerjinizi koruyun.
+                </>
+              ) : (
+                <>
+                  No activities have been recorded yet for <span className="font-semibold text-[#1A202C]">{monthName}</span>. 
+                  Tracking your daily <strong>capabilities</strong> (restorative habits), <strong>needs</strong> (maintenance), and <strong>actions</strong> (goals) lets you clearly see how much mental energy and time you have remaining.
+                </>
+              )}
             </p>
           </div>
 
@@ -115,7 +141,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
               className="w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-[#4F6D7A] hover:bg-[#3D545E] text-white font-medium text-xs transition-colors shadow-lg shadow-[#4F6D7A]/15 flex items-center justify-center gap-2 cursor-pointer"
             >
               <Plus className="w-4 h-4" />
-              <span>Record Your First Activity</span>
+              <span>{language === 'tr' ? 'İlk Aktiviteyi Kaydet' : 'Record Your First Activity'}</span>
             </button>
             <button
               id="btn-empty-setup-limits"
@@ -123,7 +149,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
               className="w-full sm:w-auto px-5 py-3.5 rounded-2xl bg-[#F7F9F9] hover:bg-gray-100 text-[#4A5568] font-medium text-xs transition-colors border border-[#EDEAE5] flex items-center justify-center gap-2 cursor-pointer"
             >
               <Sliders className="w-4 h-4" />
-              <span>Review Monthly Limits</span>
+              <span>{language === 'tr' ? 'Aylık Limitleri İncele' : 'Review Monthly Limits'}</span>
             </button>
           </div>
         </div>
@@ -134,14 +160,18 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
           <div className="lg:col-span-7 bg-white rounded-3xl p-6 sm:p-7 border border-[#EDEAE5] shadow-xs space-y-4">
             <div className="flex items-center justify-between border-b border-gray-100 pb-3">
               <div>
-                <h3 className="text-base font-semibold text-[#1A202C]">Recent Activity Logs</h3>
-                <p className="text-xs text-[#718096]">Your latest entries this month</p>
+                <h3 className="text-base font-semibold text-[#1A202C]">
+                  {language === 'tr' ? 'Son Aktiviteler' : 'Recent Activity Logs'}
+                </h3>
+                <p className="text-xs text-[#718096]">
+                  {language === 'tr' ? 'Bu ay eklenen en son kayıtlar' : 'Your latest entries this month'}
+                </p>
               </div>
               <button
                 onClick={() => onNavigate('log')}
                 className="text-xs font-semibold text-[#4F6D7A] hover:text-[#3D545E] flex items-center gap-1"
               >
-                <span>View Full Log</span>
+                <span>{language === 'tr' ? 'Tümünü Gör' : 'View Full Log'}</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </button>
             </div>
@@ -167,7 +197,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
                               : 'bg-amber-50 text-amber-800'
                           }`}
                         >
-                          {act.type}
+                          {act.type === 'capability' ? (language === 'tr' ? 'Kapasite' : 'Capability') : act.type === 'need' ? (language === 'tr' ? 'İhtiyaç' : 'Need') : (language === 'tr' ? 'Eylem' : 'Action')}
                         </span>
                       </div>
                       <div className="flex items-center gap-2 text-[11px] text-[#718096]">
@@ -185,7 +215,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
                           act.type === 'capability' ? 'text-teal-700 font-bold' : 'text-amber-700 font-bold'
                         }
                       >
-                        {act.type === 'capability' ? `+${act.willImpact}` : `-${act.willImpact}`} will
+                        {act.type === 'capability' ? `+${act.willImpact}` : `-${act.willImpact}`} {language === 'tr' ? 'irade' : 'will'}
                       </span>
                     </div>
                   </div>
@@ -200,17 +230,21 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
             <div className="bg-[#1A202C] rounded-3xl p-6 text-white shadow-lg space-y-4 relative overflow-hidden border border-gray-800">
               <div className="flex items-center justify-between">
                 <span className="text-[11px] font-bold uppercase tracking-widest text-[#F0F4F2] flex items-center gap-1.5">
-                  <Sparkles className="w-3.5 h-3.5 text-[#4F6D7A]" /> AI Priority Engine
+                  <Sparkles className="w-3.5 h-3.5 text-[#4F6D7A]" /> {language === 'tr' ? 'AI Öncelik Motoru' : 'AI Priority Engine'}
                 </span>
                 <span className="text-xs px-2.5 py-0.5 rounded-full bg-gray-800 text-gray-300 font-medium">
-                  {pendingActions.length} Pending
+                  {pendingActions.length} {language === 'tr' ? 'Bekleyen' : 'Pending'}
                 </span>
               </div>
 
               <div className="space-y-1">
-                <h4 className="text-base font-semibold text-white">Smart Action Recommendations</h4>
+                <h4 className="text-base font-semibold text-white">
+                  {language === 'tr' ? 'Akıllı Eylem Tavsiyeleri' : 'Smart Action Recommendations'}
+                </h4>
                 <p className="text-xs text-gray-300 leading-relaxed">
-                  Need clarity on what to tackle next? Let our AI assistant organize your logged actions according to your remaining {summary.remainingWill} will points, {summary.remainingTime}h time, and budget.
+                  {language === 'tr' 
+                    ? `Sırada ne yapacağınızı belirlemek için kalan ${summary.remainingWill} irade puanı, ${summary.remainingTime} saat ve bütçenize göre AI sıralamasını alın.`
+                    : `Need clarity on what to tackle next? Let our AI assistant organize your logged actions according to your remaining ${summary.remainingWill} will points, ${summary.remainingTime}h time, and budget.`}
                 </p>
               </div>
 
@@ -219,7 +253,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
                 onClick={() => onNavigate('priorities')}
                 className="w-full py-3 px-4 rounded-2xl bg-[#4F6D7A] hover:bg-[#3D545E] text-white font-medium text-xs transition-colors shadow-xs flex items-center justify-center gap-2 cursor-pointer"
               >
-                <span>Get AI Action Recommendations</span>
+                <span>{language === 'tr' ? 'AI Eylem Tavsiyelerini Al' : 'Get AI Action Recommendations'}</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
             </div>
@@ -227,21 +261,25 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
             {/* Quick Summary Metrics */}
             <div className="bg-white rounded-3xl p-6 border border-[#EDEAE5] shadow-xs space-y-3">
               <h4 className="text-xs font-bold uppercase tracking-widest text-[#A0AEC0]">
-                Monthly Activity Summary
+                {language === 'tr' ? 'Aylık Aktivite Özeti' : 'Monthly Activity Summary'}
               </h4>
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="p-4 rounded-2xl bg-[#F7F9F9] border border-[#EDEAE5]">
-                  <span className="text-[11px] text-[#718096] uppercase tracking-wider font-semibold">Completed</span>
+                  <span className="text-[11px] text-[#718096] uppercase tracking-wider font-semibold">
+                    {language === 'tr' ? 'Tamamlanan' : 'Completed'}
+                  </span>
                   <p className="text-xl font-light text-[#1A202C] mt-1">
-                    {completedCount} <span className="text-xs text-[#A0AEC0]">of {activities.length}</span>
+                    {completedCount} <span className="text-xs text-[#A0AEC0]">/ {activities.length}</span>
                   </p>
                 </div>
 
                 <div className="p-4 rounded-2xl bg-[#F7F9F9] border border-[#EDEAE5]">
-                  <span className="text-[11px] text-[#718096] uppercase tracking-wider font-semibold">Will Restored</span>
+                  <span className="text-[11px] text-[#718096] uppercase tracking-wider font-semibold">
+                    {language === 'tr' ? 'Şarj Edilen İrade' : 'Will Restored'}
+                  </span>
                   <p className="text-xl font-light text-[#4F6D7A] mt-1">
-                    +{summary.replenishedWill} <span className="text-xs text-[#A0AEC0]">pts</span>
+                    +{summary.replenishedWill} <span className="text-xs text-[#A0AEC0]">{language === 'tr' ? 'puan' : 'pts'}</span>
                   </p>
                 </div>
               </div>

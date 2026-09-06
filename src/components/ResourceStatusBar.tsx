@@ -1,5 +1,6 @@
 import React from 'react';
 import { useLedger } from '../context/LedgerContext';
+import { useLanguage } from '../context/LanguageContext';
 import { Clock, DollarSign, Zap, Sparkles } from 'lucide-react';
 
 interface ResourceStatusBarProps {
@@ -8,6 +9,7 @@ interface ResourceStatusBarProps {
 
 export const ResourceStatusBar: React.FC<ResourceStatusBarProps> = ({ compact = false }) => {
   const { summary, limits } = useLedger();
+  const { language, t } = useLanguage();
 
   // Helper for safe percentages
   const getPercent = (used: number, starting: number) => {
@@ -28,7 +30,7 @@ export const ResourceStatusBar: React.FC<ResourceStatusBarProps> = ({ compact = 
         <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#F0F4F2] text-[#4F6D7A] border border-[#EDEAE5]">
           <Clock className="w-3.5 h-3.5 text-[#4F6D7A]" />
           <span>
-            {summary.remainingTime}h <span className="text-[#718096] font-normal">time</span>
+            {summary.remainingTime}h <span className="text-[#718096] font-normal">{t('res.time').toLowerCase()}</span>
           </span>
         </div>
 
@@ -36,7 +38,7 @@ export const ResourceStatusBar: React.FC<ResourceStatusBarProps> = ({ compact = 
         <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#F0F4F2] text-[#4F6D7A] border border-[#EDEAE5]">
           <DollarSign className="w-3.5 h-3.5 text-[#4F6D7A]" />
           <span>
-            {limits.currencySymbol}{summary.remainingBudget} <span className="text-[#718096] font-normal">budget</span>
+            {limits.currencySymbol}{summary.remainingBudget} <span className="text-[#718096] font-normal">{t('res.budget').toLowerCase()}</span>
           </span>
         </div>
 
@@ -44,7 +46,7 @@ export const ResourceStatusBar: React.FC<ResourceStatusBarProps> = ({ compact = 
         <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#F0F4F2] text-[#4F6D7A] border border-[#EDEAE5]">
           <Zap className="w-3.5 h-3.5 text-[#4F6D7A]" />
           <span>
-            {summary.remainingWill} pts <span className="text-[#718096] font-normal">will</span>
+            {summary.remainingWill} {language === 'tr' ? 'puan' : 'pts'} <span className="text-[#718096] font-normal">{t('res.will').toLowerCase()}</span>
           </span>
         </div>
       </div>
@@ -56,11 +58,13 @@ export const ResourceStatusBar: React.FC<ResourceStatusBarProps> = ({ compact = 
       {/* 1. Time Card */}
       <div className="bg-white p-6 rounded-3xl border border-[#EDEAE5] shadow-xs">
         <p className="text-xs font-bold uppercase tracking-widest text-[#A0AEC0] mb-4">
-          Time Capacity
+          {language === 'tr' ? 'ZAMAN KAPASİTESİ' : 'TIME CAPACITY'}
         </p>
         <div className="flex items-baseline gap-2">
           <span className="text-4xl font-light text-[#2D3748]">{summary.remainingTime}</span>
-          <span className="text-[#718096] text-sm">hours left (of {summary.startingTime}h)</span>
+          <span className="text-[#718096] text-sm">
+            {language === 'tr' ? `kalan saat (${summary.startingTime} saatin)` : `hours left (of ${summary.startingTime}h)`}
+          </span>
         </div>
 
         {/* Sleek slim progress bar */}
@@ -73,21 +77,23 @@ export const ResourceStatusBar: React.FC<ResourceStatusBarProps> = ({ compact = 
           />
         </div>
         <div className="flex justify-between items-center mt-2.5 text-[11px] text-[#718096]">
-          <span>{summary.usedTime}h allocated</span>
-          <span>{timePct}% capacity</span>
+          <span>{summary.usedTime}h {language === 'tr' ? 'harcandı' : 'allocated'}</span>
+          <span>%{timePct} {language === 'tr' ? 'kapasite' : 'capacity'}</span>
         </div>
       </div>
 
       {/* 2. Budget Card */}
       <div className="bg-white p-6 rounded-3xl border border-[#EDEAE5] shadow-xs">
         <p className="text-xs font-bold uppercase tracking-widest text-[#A0AEC0] mb-4">
-          Financial Budget
+          {language === 'tr' ? 'MALİ BÜTÇE' : 'FINANCIAL BUDGET'}
         </p>
         <div className="flex items-baseline gap-2">
           <span className="text-4xl font-light text-[#2D3748]">
             {limits.currencySymbol}{summary.remainingBudget}
           </span>
-          <span className="text-[#718096] text-sm">available (of {limits.currencySymbol}{summary.startingBudget})</span>
+          <span className="text-[#718096] text-sm">
+            {language === 'tr' ? `kalan bütçe (${limits.currencySymbol}${summary.startingBudget})` : `available (of ${limits.currencySymbol}${summary.startingBudget})`}
+          </span>
         </div>
 
         {/* Sleek slim progress bar */}
@@ -100,22 +106,22 @@ export const ResourceStatusBar: React.FC<ResourceStatusBarProps> = ({ compact = 
           />
         </div>
         <div className="flex justify-between items-center mt-2.5 text-[11px] text-[#718096]">
-          <span>{limits.currencySymbol}{summary.usedBudget} spent</span>
-          <span>{budgetPct}% used</span>
+          <span>{limits.currencySymbol}{summary.usedBudget} {language === 'tr' ? 'harcandı' : 'spent'}</span>
+          <span>%{budgetPct} {language === 'tr' ? 'kullanıldı' : 'used'}</span>
         </div>
       </div>
 
       {/* 3. Will / Mental Energy Card */}
       <div className="bg-white p-6 rounded-3xl border border-[#EDEAE5] shadow-xs">
         <p className="text-xs font-bold uppercase tracking-widest text-[#A0AEC0] mb-4">
-          Mental Energy (Will)
+          {language === 'tr' ? 'ZİHİNSEL ENERJİ (İRADE)' : 'MENTAL ENERGY (WILL)'}
         </p>
         <div className="flex items-baseline gap-2">
           <span className="text-4xl font-light text-[#2D3748]">
             {summary.remainingWill}
           </span>
           <span className="text-[#718096] text-sm">
-            points (base {summary.startingWill})
+            {language === 'tr' ? `puan (tavan ${summary.startingWill})` : `points (base ${summary.startingWill})`}
           </span>
         </div>
 
@@ -129,14 +135,15 @@ export const ResourceStatusBar: React.FC<ResourceStatusBarProps> = ({ compact = 
           />
         </div>
         <div className="flex justify-between items-center mt-2.5 text-[11px] text-[#718096]">
-          <span>-{summary.usedWill} drained</span>
+          <span>-{summary.usedWill} {language === 'tr' ? 'tüketildi' : 'drained'}</span>
           {summary.replenishedWill > 0 ? (
-            <span className="text-[#4F6D7A] font-medium">+{summary.replenishedWill} restored</span>
+            <span className="text-[#4F6D7A] font-medium">+{summary.replenishedWill} {language === 'tr' ? 'şarj edildi' : 'restored'}</span>
           ) : (
-            <span>{willPct}% vitality</span>
+            <span>%{willPct} {language === 'tr' ? 'canlılık' : 'vitality'}</span>
           )}
         </div>
       </div>
     </div>
   );
 };
+

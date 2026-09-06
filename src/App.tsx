@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { LedgerProvider, useLedger } from './context/LedgerContext';
+import { LanguageProvider } from './context/LanguageContext';
 import { NavigationTab } from './types';
 import { Navbar } from './components/Navbar';
 import { Sidebar } from './components/Sidebar';
@@ -10,6 +11,7 @@ import { MonthlySetupView } from './views/MonthlySetupView';
 import { ActivityLogView } from './views/ActivityLogView';
 import { CategoryManagerView } from './views/CategoryManagerView';
 import { ActionPrioritiesView } from './views/ActionPrioritiesView';
+import { ManualGuideView } from './views/ManualGuideView';
 import { Sparkles, Loader2 } from 'lucide-react';
 
 const MainShell: React.FC = () => {
@@ -56,6 +58,7 @@ const MainShell: React.FC = () => {
               {activeTab === 'log' && <ActivityLogView />}
               {activeTab === 'categories' && <CategoryManagerView />}
               {activeTab === 'priorities' && <ActionPrioritiesView />}
+              {activeTab === 'manual' && <ManualGuideView onNavigate={(tab) => setActiveTab(tab)} />}
             </div>
           </main>
         </div>
@@ -66,9 +69,11 @@ const MainShell: React.FC = () => {
 
 export default function App() {
   return (
-    <AuthProvider>
-      <MainShell />
-    </AuthProvider>
+    <LanguageProvider>
+      <AuthProvider>
+        <MainShell />
+      </AuthProvider>
+    </LanguageProvider>
   );
 }
 
